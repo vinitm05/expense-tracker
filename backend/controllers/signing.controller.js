@@ -90,3 +90,42 @@ exports.deleteUser = (req, res) => {
     } else res.send({ msg: `User was deleted successfully!` });
   });
 };
+
+exports.loginUser = (req, res) => {
+  const { email, password } = req.body;
+
+  // First check if user with this email exists
+  User.findByEmail(email, (err, user) => {
+    if (err) {
+      res.status(500).send({
+        msg: "Error checking for user.",
+      });
+      return;
+    }
+
+    if (!user) {
+      res.status(404).send({
+        msg: "User not found.",
+      });
+      return;
+    }
+
+    // If user exists, check password
+    if (user.password !== password) {
+      res.status(401).send({
+        msg: "Invalid password.",
+      });
+      return;
+    }
+
+    // If password matches, send success response
+    res.status(200).send({
+      msg: "User login successful",
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  });
+};
