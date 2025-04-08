@@ -226,11 +226,8 @@ document.addEventListener("DOMContentLoaded", function () {
       signupButton.disabled = true;
       signupButton.textContent = "Creating account...";
 
-      signupButton.disabled = false;
-      signupButton.textContent = "Create account";
-
       try {
-        await fetch("http://localhost:5000/api/signup", {
+        const response = await fetch("http://localhost:5000/api/signup", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -241,20 +238,33 @@ document.addEventListener("DOMContentLoaded", function () {
             password: signupPassword.value,
           }),
         });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          // Show error message if user already exists
+          if (response.status === 400) {
+            const emailError = document.getElementById("signup-email-error");
+            showError(signupEmail, emailError, data.msg);
+          } else {
+            console.error("Signup failed:", data.msg);
+          }
+          return;
+        }
+
+        successMessage.textContent =
+          "Account created successfully! You can now log in.";
+        successMessage.style.display = "block";
+        showLoginForm();
+
+        // Clear form
+        document.getElementById("signup-name").value = "";
+        document.getElementById("signup-email").value = "";
+        document.getElementById("signup-password").value = "";
+        document.getElementById("signup-confirm-password").value = "";
       } catch (error) {
         console.error(error);
       }
-
-      successMessage.textContent =
-        "Account created successfully! You can now log in.";
-      successMessage.style.display = "block";
-      showLoginForm();
-
-      // Clear form
-      document.getElementById("signup-name").value = "";
-      document.getElementById("signup-email").value = "";
-      document.getElementById("signup-password").value = "";
-      document.getElementById("signup-confirm-password").value = "";
     }
   });
 });

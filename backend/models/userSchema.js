@@ -90,4 +90,22 @@ User.remove = (id, result) => {
   });
 };
 
+User.findByEmail = (email, result) => {
+  sql.query("SELECT * FROM users WHERE email = ?", email, (err, res) => {
+    if (err) {
+      console.error("Error finding user by email:", err);
+      result(err, null);
+      return;
+    }
+
+    if (res.length) {
+      console.log("Found user:", res[0]);
+      result(null, res[0]);
+      return;
+    }
+
+    result(null, null);
+  });
+};
+
 module.exports = User;
